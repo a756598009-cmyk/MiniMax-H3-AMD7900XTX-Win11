@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>MiniMax H3 AMD 7900XTX Windows11 部署记录</title>
+<style>
+body{font-family:"Microsoft YaHei";background:#f3f5f7;margin:0;padding:30px;color:#222}
+.main{max-width:1100px;margin:auto;background:#fff;padding:35px;border-radius:12px}
+h1,h2{color:#145a8d}
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid #ddd;padding:10px}
+code,pre{background:#eee;padding:8px;border-radius:5px}
+.box{background:#eef8ff;padding:15px;border-left:5px solid #1683c7}
+a{color:#0066cc}
+</style>
+</head>
+<body>
+<div class="main">
+
+<h1>MiniMax H3 图生视频 AMD RX 7900 XTX Windows11 部署成功方案</h1>
+
+<div class="box">
+本方案根据实际部署过程整理：Windows11 + AMD RX 7900 XTX + ComfyUI AMD Portable。
+已验证：首图 I2V、首图+尾图 I2V 均成功生成5秒视频。
+</div>
+
+<h2>一、硬件环境</h2>
+<table>
+<tr><th>项目</th><th>配置</th></tr>
+<tr><td>系统</td><td>Windows 11</td></tr>
+<tr><td>显卡</td><td>AMD Radeon RX 7900 XTX</td></tr>
+<tr><td>显存</td><td>24GB</td></tr>
+<tr><td>内存</td><td>32GB</td></tr>
+<tr><td>虚拟内存</td><td>124GB</td></tr>
+</table>
+
+<h2>二、ComfyUI AMD Portable</h2>
+
+<p>使用方式：下载 AMD Portable 版本，解压即可，不需要单独安装 Python。</p>
+
+<p>官方地址：</p>
+<p><a href="https://github.com/Comfy-Org/ComfyUI/releases">https://github.com/Comfy-Org/ComfyUI/releases</a></p>
+
+<p>解压目录：</p>
+<pre>C:\H3\ComfyUI_windows_portable_amd</pre>
+
+<h2>三、安装自定义节点</h2>
+
+<p>进入 ComfyUI目录：</p>
+
+<pre>cd /d C:\H3\ComfyUI_windows_portable_amd</pre>
+
+<p>安装 GGUF Loader 节点：</p>
+
+<pre>
+git clone https://github.com/ChrisColeTech/ComfyUI-GGUF-Loader ComfyUI/custom_nodes/ComfyUI-GGUF-Loader
+</pre>
+
+安装依赖：
+
+<pre>
+.\python_embeded\python.exe -s -m pip install -r .\ComfyUI\custom_nodes\ComfyUI-GGUF-Loader\requirements.txt
+</pre>
+
+<h2>四、模型下载</h2>
+
+<h3>1. H3主模型</h3>
+<p>文件：</p>
+<pre>minimax_h3_fl2va_pruned_int8_convrot.safetensors</pre>
+<p>目录：</p>
+<pre>ComfyUI\models\diffusion_models\</pre>
+<p><a href="https://huggingface.co/Comfy-Org/MiniMax-H3/tree/main/diffusion_models">下载</a></p>
+
+<h3>2. Qwen3VL文本编码器</h3>
+<pre>qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors</pre>
+<pre>ComfyUI\models\text_encoders\</pre>
+<p><a href="https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors">下载</a></p>
+
+<h3>3. Video VAE</h3>
+<pre>minimax_h3_video_vae_fp16.safetensors</pre>
+<pre>ComfyUI\models\vae\</pre>
+<p><a href="https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_video_vae_fp16.safetensors">下载</a></p>
+
+<h3>4. Audio VAE</h3>
+<pre>minimax_h3_audio_vae_fp32.safetensors</pre>
+<pre>ComfyUI\models\vae\</pre>
+<p><a href="https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_audio_vae_fp32.safetensors">下载</a></p>
+
+<h3>5. Turbo LoRA</h3>
+<pre>minimax_h3_fl2v_turbo_8step_v1.0_comfyui_bf16.safetensors</pre>
+<pre>ComfyUI\models\loras\</pre>
+<p><a href="https://huggingface.co/Comfy-Org/MiniMax-H3/tree/main/loras">下载</a></p>
+
+<h2>五、模型目录</h2>
+<pre>
+models
+
+├─ diffusion_models
+│  └─ minimax_h3_fl2va_pruned_int8_convrot.safetensors
+│
+├─ text_encoders
+│  └─ qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors
+│
+├─ loras
+│  └─ minimax_h3_fl2v_turbo_8step_v1.0_comfyui_bf16.safetensors
+│
+└─ vae
+   ├─ minimax_h3_video_vae_fp16.safetensors
+   └─ minimax_h3_audio_vae_fp32.safetensors
+</pre>
+
+<h2>六、启动命令</h2>
+<pre>
+cd /d C:\H3\ComfyUI_windows_portable_amd
+
+.\python_embeded\python.exe -s ComfyUI\main.py --windows-standalone-build
+</pre>
+
+<h2>七、最终最佳参数</h2>
+
+<h3>首图模式</h3>
+<ul>
+<li>分辨率：576×320</li>
+<li>长度：124 frames</li>
+<li>Steps：6</li>
+<li>Turbo LoRA开启</li>
+</ul>
+
+<h3>首图+尾图模式（推荐）</h3>
+<ul>
+<li>first_frame：首图</li>
+<li>last_frame：尾图</li>
+<li>分辨率：576×320</li>
+<li>长度：124 frames</li>
+<li>Steps：6</li>
+</ul>
+
+<h2>八、实际效果</h2>
+<table>
+<tr><th>模式</th><th>结果</th></tr>
+<tr><td>首图</td><td>约4分钟生成5秒视频</td></tr>
+<tr><td>首图+尾图</td><td>约4分钟生成5秒视频</td></tr>
+</table>
+
+<h2>九、最终推荐</h2>
+<p>
+AMD RX 7900 XTX + Windows11 下推荐：
+<br>
+MiniMax H3 + Qwen3VL NVFP4 + Turbo LoRA
+<br>
+576×320 / 124 frames / 6 steps
+</p>
+
+
+<h2>十、ComfyUI 工作流下载</h2>
+
+<p>本教程对应的 MiniMax H3 工作流：</p>
+
+<ul>
+<li>首图 I2V 工作流</li>
+<li>首图 + 尾图 I2V 工作流</li>
+</ul>
+
+<p>下载地址：</p>
+
+<p>
+<a href="https://pan.quark.cn/s/0a84218d8ad3?pwd=dvv1">
+夸克网盘：MiniMax H3 AMD7900XTX 工作流
+</a>
+</p>
+
+<p>
+提取码：<code>dvv1</code>
+</p>
+
+</div>
+</body>
+</html>
