@@ -1,4 +1,4 @@
-# MiniMax H3 图生视频 AMD RX 7900 XTX Windows11 部署成功方案
+# MiniMax H3 图生视频 AMD RX 7900 XTX Windows11 部署成功方案长期维护
 
 > 本方案根据实际部署过程整理：Windows11 + AMD RX 7900 XTX + ComfyUI AMD Portable。
 > 已验证：首图 I2V、首图+尾图 I2V 均成功生成5秒视频。
