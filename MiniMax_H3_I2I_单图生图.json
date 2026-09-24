@@ -1,0 +1,181 @@
+{
+  "1": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "2": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+      "type": "minimax"
+    }
+  },
+  "3": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "minimax_h3_video_vae_fp16.safetensors"
+    }
+  },
+  "4": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "example.png",
+      "upload": "image"
+    }
+  },
+  "5": {
+    "class_type": "H3ImageResolutionPreset",
+    "inputs": {
+      "source_image": [
+        "4",
+        0
+      ],
+      "aspect_ratio": "source image",
+      "resolution_profile": "native detail | 0.98 MP",
+      "custom_megapixels": 2.0,
+      "limit_to_native_area": false
+    }
+  },
+  "6": {
+    "class_type": "H3ImageToImagePrepare",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "source_image": [
+        "4",
+        0
+      ],
+      "edit_instruction": "Preserve the subject identity, pose, clothing, composition and camera angle of the source image. Create a polished cinematic finished still with natural lighting, detailed skin texture, coherent anatomy and clean background. Improve image quality while keeping the source image structure.",
+      "width": [
+        "5",
+        0
+      ],
+      "height": [
+        "5",
+        1
+      ],
+      "quality_profile": "recommended | 5 frames",
+      "source_fidelity": 0.75,
+      "source_fit": "crop_center",
+      "optimize_for_still": true
+    }
+  },
+  "7": {
+    "class_type": "H3ImageSamplingPreset",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "sampling_profile": "base speed | RES 12 steps",
+      "custom_sampler": "res_multistep",
+      "custom_scheduler": "simple",
+      "custom_steps": 12,
+      "custom_denoise": 1.0,
+      "custom_shift_video": 12.0,
+      "custom_shift_audio": 3.0,
+      "custom_beta_alpha": 0.6,
+      "custom_beta_beta": 0.6
+    }
+  },
+  "8": {
+    "class_type": "BasicGuider",
+    "inputs": {
+      "model": [
+        "7",
+        0
+      ],
+      "conditioning": [
+        "6",
+        0
+      ]
+    }
+  },
+  "9": {
+    "class_type": "RandomNoise",
+    "inputs": {
+      "noise_seed": 123456789
+    }
+  },
+  "10": {
+    "class_type": "SamplerCustomAdvanced",
+    "inputs": {
+      "noise": [
+        "9",
+        0
+      ],
+      "guider": [
+        "8",
+        0
+      ],
+      "sampler": [
+        "7",
+        1
+      ],
+      "sigmas": [
+        "7",
+        2
+      ],
+      "latent_image": [
+        "6",
+        1
+      ]
+    }
+  },
+  "11": {
+    "class_type": "H3ImageDecode",
+    "inputs": {
+      "samples": [
+        "10",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "decode_mode": "temporal",
+      "latent_index": 0,
+      "spatial_decode": "native"
+    }
+  },
+  "12": {
+    "class_type": "H3ImageFrameSelector",
+    "inputs": {
+      "frames": [
+        "11",
+        0
+      ],
+      "strategy": "decode_recommended",
+      "manual_index": 0,
+      "skip_first_frames": 0,
+      "candidate_start": 0.0,
+      "candidate_end": 1.0,
+      "similarity_weight": 0.6,
+      "top_k": 4,
+      "emit_candidate_batch": false,
+      "recommended_index": [
+        "11",
+        3
+      ]
+    }
+  },
+  "13": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "12",
+        0
+      ],
+      "filename_prefix": "H3_I2I_7900XTX"
+    }
+  }
+}
